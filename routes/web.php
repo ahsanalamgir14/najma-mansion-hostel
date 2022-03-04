@@ -1,7 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\RoomController;
+use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\TenantController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -13,10 +16,17 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+// Route::get('/', function () {
+//     return view('welcome');
+// });
+
+Route::resource('/rooms', RoomController::class);
+Route::resource('/employees', EmployeeController::class);
+Route::resource('/tenants', TenantController::class);
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
 });
-
-Auth::routes();
-
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Auth::routes(['register' => false]);
+Route::group(['middleware' => 'auth'], function () {
+    Route::any('/{any}', [DashboardController::class, 'index'])->where('any', '^(?!api).*$');
+});
